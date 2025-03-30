@@ -1,0 +1,33 @@
+[manifest]
+version = "1.0.0"
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = "globals.lua"
+position = "before"
+times = 1
+pattern = '''
+end
+
+G = Game()
+'''
+payload = "self.F_SAVE_TIMER = 0.5"
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+position = "before"
+times = 1
+pattern = "love.event.quit()"
+payload = '''
+  if G.FILE_HANDLER then
+    G.FILE_HANDLER.force = true
+  end
+  local pending_saves = love.thread.getChannel("save_request")
+  while pending_saves:getCount() > 0 do
+    love.timer.sleep(0.1)
+  end
+'''
+match_indent = false
